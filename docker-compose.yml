@@ -1,0 +1,23 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: splitpay
+    volumes: [dbdata:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      retries: 30
+  app:
+    build: .
+    ports: ["8080:8080"]
+    environment:
+      DB_URL: jdbc:mysql://db:3306/splitpay?useSSL=false&allowPublicKeyRetrieval=true
+      DB_USER: root
+      DB_PASS: root
+      JWT_SECRET: change-me-change-me-change-me-change-me-32b
+    depends_on:
+      db: { condition: service_healthy }
+volumes:
+  dbdata:
